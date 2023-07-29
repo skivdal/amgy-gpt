@@ -2,9 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AmgyGPT Chat</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>amgyGPT - Chat</title>
+
+    <style>
+        .loader {
+            display: none;
+            position: absolute;
+            margin: 0 10px 0 10px;
+            border: 0.2rem solid #f1f1ef;
+            border-top: 0.2rem solid hsl(120deg, 80%, 50%);
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            animation: spin 1.5s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", () => {
+           const conversation = [];
+
+           const messageBox = document.getElementById("chat-message");
+           const sendMessageBtn = document.getElementById("send-message");
+           const loader = document.getElementById("message-loader");
+
+           sendMessageBtn.addEventListener("click", async () => {
+              conversation.push(messageBox.value);
+              messageBox.value = "";
+
+              sendMessageBtn.disabled = true;
+              loader.style.display = "inline";
+
+              renderConversation(conversation);
+
+              try {
+                   const req = await fetch("/api/chat", {
+                      method: "POST",
+                      body: JSON.stringify(conversation),
+                      headers: {
+                          "Content-Type": "application/json",
+                      },
+                  });
+
+                  const res = await req.json();
+
+                  conversation.push(res.msg);
+              } catch {
+                  conversation.push('<span style="color: red;">There was an error in processing this request.</span>');
+              }
+
+              sendMessageBtn.disabled = false;
+              loader.style.display = "none";
+
+              renderConversation(conversation);
+           });
+        });
+
+        function renderConversation(conversation) {
+            const element = document.getElementById("conversation");
+            element.innerHTML = "";
+
+            for (let i = 0; i < conversation.length; ++i) {
+                const msg = conversation[i];
+
+                const r = document.createElement("tr");
+                const d = document.createElement("td");
+                const m = document.createElement("td");
+
+                d.style.textAlign = "right";
+                d.style.verticalAlign = "top";
+                d.innerHTML = i % 2 === 0 ? "You:" : "amgyGPT:";
+
+                m.innerHTML = msg.replaceAll("\n", "<br>");
+
+                r.appendChild(d);
+                r.appendChild(m);
+
+                element.appendChild(r);
+            }
+        }
+    </script>
 </head>
 <body>
-    <h2>Lorem ipsum</h2>
+    <h2>Chat!</h2>
+    <table id="conversation" style="max-width: 50rem;"></table>
+
+    <br>
+    <label for="chat-message"></label>
+    <textarea name="chat-message" id="chat-message" cols="40" rows="3"></textarea>
+    <br>
+    <button id="send-message">Send</button>
+    <div id="message-loader" class="loader"></div>
+
+    <p><i>None of this is saved. Please use screenshots.</i></p>
 </body>
 </html>

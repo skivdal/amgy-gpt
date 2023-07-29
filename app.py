@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+import json
+from flask import Flask, render_template, request
+from llm_interaction import get_chat_completion
 
 
 app = Flask(__name__)
@@ -12,6 +14,13 @@ def index():
 @app.route("/chat")
 def chat():
     return render_template("chat.html")
+
+
+@app.route("/api/chat", methods=["POST"])
+def converse():
+    conversation = request.json
+    next_message = get_chat_completion(conversation)
+    return json.dumps({"msg": next_message})
 
 
 if __name__ == '__main__':
