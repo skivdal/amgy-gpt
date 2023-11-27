@@ -1,5 +1,6 @@
 import json
 from flask import Flask, render_template, request
+from flask_cors import cross_origin
 from llm_interaction import get_chat_completion
 
 
@@ -17,6 +18,7 @@ def chat():
 
 
 @app.route("/api/chat", methods=["POST"])
+@cross_origin(origins='*')
 def converse():
     conversation = request.json
     next_message = get_chat_completion(conversation)
