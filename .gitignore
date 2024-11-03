@@ -1,4 +1,6 @@
 venv
 .idea
 __pycache__
+dist-newstyle
+cabal.project.local
 

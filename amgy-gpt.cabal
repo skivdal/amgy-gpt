@@ -1,0 +1,43 @@
+cabal-version:      2.4
+name:               amgy-gpt
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             Johannes Skivdal
+maintainer:         johannes@skivdaldata.no
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+executable amgy-gpt
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+    build-depends:
+        base           ^>= 4.16.4.0,
+        http-types,
+        bytestring,
+        aeson          >= 2.2.3 && < 2.3,
+        transformers   >= 0.5.6 && < 0.6,
+        servant        >= 0.20.2 && < 0.21,
+        servant-server >= 0.20.2 && < 0.21,
+        wai            >= 3.2.4 && < 3.3,
+        warp           >= 3.4.3 && < 3.5,
+    hs-source-dirs:   app
+    default-language: Haskell2010
