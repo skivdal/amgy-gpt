@@ -25,19 +25,23 @@ executable amgy-gpt
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules:
+    other-modules:    LLM
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:
-        base           ^>= 4.16.4.0,
-        http-types,
-        bytestring,
-        aeson          >= 2.2.3 && < 2.3,
-        transformers   >= 0.5.6 && < 0.6,
-        servant        >= 0.20.2 && < 0.21,
-        servant-server >= 0.20.2 && < 0.21,
-        wai            >= 3.2.4 && < 3.3,
-        warp           >= 3.4.3 && < 3.5,
+        base            ^>= 4.16.4.0,
+        bytestring      >= 0.11.4 && < 0.12,
+        text            >= 1.2.5 && < 1.3,
+        http-client     >= 0.7.17 && < 0.8,
+        http-client-tls >= 0.3.6 && < 0.4,
+        http-types      >= 0.12.4 && < 0.13,
+        openai-hs       >= 0.3.0 && < 0.4,
+        aeson           >= 2.2.3 && < 2.3,
+        transformers    >= 0.5.6 && < 0.6,
+        servant         >= 0.20.2 && < 0.21,
+        servant-server  >= 0.20.2 && < 0.21,
+        wai             >= 3.2.4 && < 3.3,
+        warp            >= 3.4.3 && < 3.5,
     hs-source-dirs:   app
     default-language: Haskell2010

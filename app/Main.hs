@@ -1,11 +1,12 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Main where
 
-import Data.ByteString.Char8 (pack)
+import LLM (askGpt)
 import Data.Aeson
 import GHC.Generics
 import Network.HTTP.Types
@@ -15,11 +16,15 @@ import Network.Wai.Handler.Warp
 import Servant
 import Servant.Server.StaticFiles
 import System.IO
+import Control.Monad.IO.Class (liftIO)
+import OpenAI.Client (chmContent, chchMessage, cchText, chrChoices)
+import Data.Text (unpack)
+import Data.Maybe
 
 type AmgyAPI =
-  "api"          :> "chat" :> ReqBody '[JSON] Conversation :> Post '[JSON] NextMessage :<|>
+  "api"    :> "chat" :> ReqBody '[JSON] Conversation :> Post '[JSON] NextMessage :<|>
   "static" :> Raw :<|>
-  "chat" :> Raw :<|>
+  "chat"   :> Raw :<|>
   Raw -- NOTE: this apparently always matches...
 
 newtype Conversation = Conversation [String]
@@ -53,11 +58,28 @@ server =
     :<|> getRoot
 
 getRoot :: Tagged Handler Application
-getRoot = Tagged $ \req res -> res $ responseFile status200 [(hContentType, pack "text/html")] "templates/index.html" Nothing
+getRoot = Tagged $ \_ res -> res $ responseFile status200 [(hContentType, "text/html")] "templates/index.html" Nothing
 
 getConvPage :: Tagged Handler Application
-getConvPage = Tagged $ \req res -> res $ responseFile status200 [(hContentType, pack "text/html")] "templates/chat.html" Nothing
+getConvPage = Tagged $ \_ res -> res $ responseFile status200 [(hContentType, "text/html")] "templates/chat.html" Nothing
+
+safeHead :: [a] -> Maybe a
+safeHead [] = Nothing
+safeHead (x:_) = Just x
 
 doChat :: Conversation -> Handler NextMessage
-doChat _ = return NextMessage {msg="WOAH"}
+doChat (Conversation c) = do
+  x <- liftIO $ askGpt c
+  case x of
+    Left err -> do
+      liftIO $ print err
+      throwError err500
+    Right success -> do
+      let res = safeHead (chrChoices success) >>= (Just . chchMessage) >>= chmContent >>= (Just . unpack)
+
+      case res of
+        Nothing -> do
+          liftIO $ print res
+          throwError err500
+        Just y -> return NextMessage {msg=y}
 
