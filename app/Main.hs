@@ -11,11 +11,13 @@ import Data.Aeson
 import GHC.Generics
 import Network.HTTP.Types
 import Network.HTTP.Types.Header
+import Network.Socket
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import Servant.Server.StaticFiles
 import System.IO
+import System.Environment (lookupEnv)
 import Control.Monad.IO.Class (liftIO)
 import OpenAI.Client (chmContent, chchMessage, cchText, chrChoices)
 import Data.Text (unpack)
@@ -40,12 +42,36 @@ amgyApi = Proxy
 
 main :: IO ()
 main = do
-  let port = 3000
-      settings =
-        setPort port $
-          setBeforeMainLoop (hPutStrLn stderr ("listening on port " ++ show port))
-            defaultSettings
-  runSettings settings =<< mkApp
+  envAddr <- lookupEnv "SOCKET_ADDR"
+  let settings = setServerName ""
+        defaultSettings
+
+  case envAddr of
+    -- devel mode
+    Nothing -> do
+      let host = "127.0.0.1"
+          port = 3000
+          devSettings =
+            setHost host $
+            setPort port $
+            setBeforeMainLoop (putStrLn ("Listening on " ++ show host ++ ":" ++ show port))
+            settings
+
+      runSettings devSettings =<< mkApp
+
+    -- prod mode
+    Just addr -> do
+      let prodSettings =
+            setBeforeMainLoop (putStrLn ("Listening on " ++ addr))
+            settings
+
+      sock <- socket AF_UNIX Stream 0
+      bind sock $ SockAddrUnix addr
+      listen sock maxListenQueue
+
+      runSettingsSocket prodSettings sock =<< mkApp
+
+      close sock
 
 mkApp :: IO Application
 mkApp = return $ serve amgyApi server
