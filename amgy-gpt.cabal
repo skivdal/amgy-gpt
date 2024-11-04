@@ -31,6 +31,7 @@ executable amgy-gpt
     -- other-extensions:
     build-depends:
         base            ^>= 4.16.4.0,
+        unix            >= 2.7.2 && < 2.8,
         network         >= 3.2.4 && < 3.3,
         bytestring      >= 0.11.4 && < 0.12,
         text            >= 1.2.5 && < 1.3,

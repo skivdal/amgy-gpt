@@ -22,6 +22,7 @@ import Control.Monad.IO.Class (liftIO)
 import OpenAI.Client (chmContent, chchMessage, cchText, chrChoices)
 import Data.Text (unpack)
 import Data.Maybe
+import System.Posix.Files
 
 type AmgyAPI =
   "api"    :> "chat" :> ReqBody '[JSON] Conversation :> Post '[JSON] NextMessage :<|>
@@ -67,6 +68,9 @@ main = do
 
       sock <- socket AF_UNIX Stream 0
       bind sock $ SockAddrUnix addr
+
+      setFileMode addr (unionFileModes (unionFileModes ownerModes groupModes) otherModes)
+
       listen sock maxListenQueue
 
       runSettingsSocket prodSettings sock =<< mkApp
