@@ -3,21 +3,21 @@ name:               amgy-gpt
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
--- synopsis:
+synopsis:           The chatbot that doesn't want to talk to you
 
 -- A longer description of the package.
--- description:
+description:        Web application written using Servant, calling the OpenAI API using openai-hs
 
 -- A URL where users can report bugs.
 -- bug-reports:
 
 -- The license under which the package is released.
--- license:
+license:            AGPL-3.0-or-later
 author:             Johannes Skivdal
 maintainer:         johannes@skivdaldata.no
 
 -- A copyright notice.
--- copyright:
+copyright:          (c) 2024 Johannes Skivdal
 -- category:
 extra-source-files: CHANGELOG.md
 
